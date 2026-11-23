@@ -1,0 +1,9 @@
+{
+  "registry_version": 1,
+  "packages": {
+    "xtpkg": {
+      "path": "packages/xtpkg.json",
+      "description": "A lightweight LuauXTX package manager featuring deterministic dependency resolution, SemVer versioning, Git-based registries, verified caching, and reproducible installations."
+    }
+  }
+}
