@@ -4,6 +4,10 @@
     "xtpkg": {
       "path": "packages/xtpkg.json",
       "description": "A lightweight LuauXTX package manager featuring deterministic dependency resolution, SemVer versioning, Git-based registries, verified caching, and reproducible installations."
+    },
+    "xtest": {
+      "path": "packages/xtest.json",
+      "description": "A lightweight extensible testing framework for LuauXTX."
     }
   }
 }
