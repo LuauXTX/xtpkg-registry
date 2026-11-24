@@ -1,32 +1,28 @@
 {
-   "description":"A lightweight LuauXTX package manager featuring deterministic dependency resolution, SemVer versioning, Git-based registries, verified caching, and reproducible installations.",
-   "license":"MIT",
-   "name":"xtpkg",
-   "repository":"https://github.com/MINTILER-DEV/xtpkg",
-   "versions":{
-      "0.2.0":{
-         "dependencies":{
-            
-         },
-         "entry":"src/main.luau",
-         "integrity":"10d52f18b436734afae76e1f0a6bd080ef46f8baabd60ed46478950da13c6f35",
-         "source":{
-            "revision":"693b71891f4dfae5fae5583cea00f52d8c4cb960",
-            "type":"git",
-            "url":"https://github.com/MINTILER-DEV/xtpkg"
-         }
-      },
-      "0.2.1":{
-         "dependencies":{
-            
-         },
-         "entry":"src/main.luau",
-         "integrity":"9a5bdd1762abb2f8275d8ab907ef00459eff15f1eff2dc9a6a1ac79ab640c366",
-         "source":{
-            "revision":"0df6ff3320a294655b6f0163e98aef083d0f72fb",
-            "type":"git",
-            "url":"https://github.com/MINTILER-DEV/xtpkg"
-         }
+  "description": "A lightweight LuauXTX package manager featuring deterministic dependency resolution, SemVer versioning, Git-based registries, verified caching, and reproducible installations.",
+  "license": "MIT",
+  "name": "xtpkg",
+  "repository": "https://github.com/MINTILER-DEV/xtpkg",
+  "versions": {
+    "0.2.0": {
+      "dependencies": {},
+      "entry": "src/main.luau",
+      "integrity": "10d52f18b436734afae76e1f0a6bd080ef46f8baabd60ed46478950da13c6f35",
+      "source": {
+        "revision": "693b71891f4dfae5fae5583cea00f52d8c4cb960",
+        "type": "git",
+        "url": "https://github.com/MINTILER-DEV/xtpkg"
       }
-   }
+    },
+    "0.2.1": {
+      "dependencies": {},
+      "entry": "src/main.luau",
+      "integrity": "9a5bdd1762abb2f8275d8ab907ef00459eff15f1eff2dc9a6a1ac79ab640c366",
+      "source": {
+        "revision": "0df6ff3320a294655b6f0163e98aef083d0f72fb",
+        "type": "git",
+        "url": "https://github.com/MINTILER-DEV/xtpkg"
+      }
+    }
+  }
 }

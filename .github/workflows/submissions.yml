@@ -1,0 +1,60 @@
+name: Prepare approved submissions
+on:
+  push:
+    branches: [main]
+    paths: ['submissions/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+concurrency:
+  group: registry-submission-publisher
+  cancel-in-progress: false
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate and create a registry change PR
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Never overwrite another pending application branch or force-push.
+          existing=$(gh pr list --state open --base main --json author,number,headRefName \
+            --jq '.[] | select((.author.login == "github-actions[bot]" or .author.login == "app/github-actions") and (.headRefName | startswith("automation/registry-submissions-"))) | .number' | head -n 1)
+          if [ -n "$existing" ]; then
+            echo "Submission application PR #$existing is pending. Merge/close it, then rerun this workflow for any remaining submissions."
+            exit 0
+          fi
+          python tools/registry.py validate --submissions
+          python tools/registry.py apply
+          git add -- index.json packages submissions
+          if git diff --cached --quiet; then
+            echo 'No pending submissions or formatting changes.'
+            exit 0
+          fi
+          branch="automation/registry-submissions-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          git -c core.hooksPath= switch -c "$branch"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -c core.hooksPath= commit -m 'Apply approved package submissions'
+          git push origin "HEAD:refs/heads/$branch"
+          cat > "$RUNNER_TEMP/submission-pr.md" <<'BODY'
+          Applies the reviewed metadata submissions from the main branch inbox.
+          Updates package records and the discovery index while preserving existing versions, and removes processed inbox files.
+
+          Maintainers: review source ownership, commit availability, license, dependencies, and the actual content checksum before merging. Metadata validation does not execute package code or certify its safety. This PR is not auto-merged.
+          BODY
+          gh pr create --base main --head "$branch" --title 'Apply approved package submissions' --body-file "$RUNNER_TEMP/submission-pr.md"
+          number=$(gh pr view "$branch" --json number --jq .number)
+          # GITHUB_TOKEN-created PR workflows may require approval. Explicit
+          # dispatch always runs the trusted default-branch validator instead.
+          gh workflow run validate.yml --ref main -f "pr=$number"

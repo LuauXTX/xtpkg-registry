@@ -1,13 +1,13 @@
 {
-  "registry_version": 1,
   "packages": {
-    "xtpkg": {
-      "path": "packages/xtpkg.json",
-      "description": "A lightweight LuauXTX package manager featuring deterministic dependency resolution, SemVer versioning, Git-based registries, verified caching, and reproducible installations."
-    },
     "xtest": {
-      "path": "packages/xtest.json",
-      "description": "A lightweight extensible testing framework for LuauXTX."
+      "description": "A lightweight extensible testing framework for LuauXTX.",
+      "path": "packages/xtest.json"
+    },
+    "xtpkg": {
+      "description": "A lightweight LuauXTX package manager featuring deterministic dependency resolution, SemVer versioning, Git-based registries, verified caching, and reproducible installations.",
+      "path": "packages/xtpkg.json"
     }
-  }
+  },
+  "registry_version": 1
 }

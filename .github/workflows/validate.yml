@@ -1,0 +1,75 @@
+name: Validate registry
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Pull request number to validate
+        required: true
+        type: string
+permissions:
+  contents: read
+  statuses: write
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Resolve candidate and trusted base
+        id: refs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os, re
+          value = os.environ['PR_NUMBER']
+          if not re.fullmatch(r'[1-9][0-9]{0,8}', value):
+              raise SystemExit('Invalid PR number')
+          PY
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" > "$RUNNER_TEMP/pr.json"
+          python - <<'PY'
+          import json, os, re
+          with open(os.environ['RUNNER_TEMP'] + '/pr.json') as f:
+              pr = json.load(f)
+          assert pr['base']['ref'] == 'main'
+          assert pr['base']['repo']['full_name'] == os.environ['GITHUB_REPOSITORY']
+          assert re.fullmatch(r'[0-9a-f]{40}', pr['base']['sha'])
+          assert re.fullmatch(r'[0-9a-f]{40}', pr['head']['sha'])
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write('base=' + pr['base']['sha'] + '\n')
+              f.write('head=' + pr['head']['sha'] + '\n')
+              f.write('pr=' + str(pr['number']) + '\n')
+          PY
+      - name: Checkout trusted validator
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.refs.outputs.base }}
+          path: trusted
+          persist-credentials: false
+      - name: Checkout candidate data
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.refs.outputs.head }}
+          path: candidate
+          persist-credentials: false
+      - name: Validate published versions and pending submissions
+        id: validate
+        run: python trusted/tools/registry.py validate --root candidate --previous trusted --submissions
+      # Explicit dispatch attaches a status to the PR head as well. A workflow
+      # dispatched on main otherwise reports its check against main's SHA.
+      - name: Report dispatched validation
+        if: always() && github.event_name == 'workflow_dispatch' && steps.refs.outputs.head != ''
+        env:
+          HEAD_SHA: ${{ steps.refs.outputs.head }}
+          RESULT: ${{ steps.validate.outcome == 'success' && 'success' || 'failure' }}
+        run: |
+          gh api --method POST "repos/$GITHUB_REPOSITORY/statuses/$HEAD_SHA" \
+            -f "state=$RESULT" -f 'context=Registry metadata' \
+            -f "target_url=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            -f 'description=Trusted-base registry metadata validation'
