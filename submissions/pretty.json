@@ -1,0 +1,18 @@
+{
+  "description": "dependency-free pretty printing for Luau / LuauXTX.",
+  "license": "MIT",
+  "name": "pretty",
+  "repository": "https://github.com/MINTILER-DEV/pretty",
+  "versions": {
+    "0.1.0": {
+      "dependencies": {},
+      "entry": "src/main.luau",
+      "integrity": "1a7d8b840affced464d9a55599564399ec384cf56efe49c70440026c362fc4c7",
+      "source": {
+        "revision": "ccbc9e3da347c5c8dd52c861ee16c1ca262cc17b",
+        "type": "git",
+        "url": "https://github.com/MINTILER-DEV/pretty"
+      }
+    }
+  }
+}
