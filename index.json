@@ -1,5 +1,9 @@
 {
   "packages": {
+    "pretty": {
+      "description": "dependency-free pretty printing for Luau / LuauXTX.",
+      "path": "packages/pretty.json"
+    },
     "xtest": {
       "description": "A lightweight extensible testing framework for LuauXTX.",
       "path": "packages/xtest.json"
