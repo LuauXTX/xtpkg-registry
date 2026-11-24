@@ -38,7 +38,7 @@ def name(value):
 def version(value):
     require(isinstance(value, str) and len(value) <= 256, "invalid semantic version")
     match = VERSION.fullmatch(value)
-    require(match is not None, "invalid semantic version: " + value)
+    require(match is not None, "invalid semantic version: " + repr(value))
     if match[4]:
         for item in match[4].split("."):
             require(not item.isdigit() or len(item) == 1 or item[0] != "0", "leading zero in prerelease")
@@ -160,6 +160,7 @@ def load(root):
     # Every published metadata record must be indexed, and symlinks are refused.
     package_root = Path(root) / "packages"
     if package_root.exists():
+        safe(root, "packages")
         for directory, directories, files in os.walk(package_root, followlinks=False):
             for child in directories + files:
                 relative_path = (Path(directory) / child).relative_to(root).as_posix()
@@ -171,20 +172,26 @@ def load(root):
     return index, packages
 
 
+def same_record(left, right):
+    # Python considers True == 1; immutable JSON records must distinguish them.
+    return json.dumps(left, sort_keys=True, separators=(",", ":"), allow_nan=False) == json.dumps(right, sort_keys=True, separators=(",", ":"), allow_nan=False)
+
+
 def immutable(previous, candidate):
     for package, old in previous.items():
         require(package in candidate, "existing package was removed: " + package)
         for ver, record in old["versions"].items():
-            require(candidate[package]["versions"].get(ver) == record, "immutable version changed/removed: " + package + "@" + ver)
+            require(same_record(candidate[package]["versions"].get(ver), record), "immutable version changed/removed: " + package + "@" + ver)
 
 
 def pending(root):
     directory = Path(root) / "submissions"
+    safe(root, "submissions")
     if not directory.exists():
         return []
-    safe(root, "submissions")
     result = []
     for entry in sorted(directory.iterdir()):
+        safe(root, entry.relative_to(root).as_posix())
         if entry.name == "README.md":
             continue
         require(entry.is_file() and entry.suffix == ".json", "submissions must be flat JSON files")
@@ -202,7 +209,7 @@ def plan(root, include_submissions):
         if package in packages:
             current = packages[package]
             for ver, record in submission["versions"].items():
-                require(ver not in current["versions"] or current["versions"][ver] == record, "submission rewrites immutable version: " + package + "@" + ver)
+                require(ver not in current["versions"] or same_record(current["versions"][ver], record), "submission rewrites immutable version: " + package + "@" + ver)
                 current["versions"][ver] = record
             for key, value in submission.items():
                 if key != "versions":
@@ -215,6 +222,9 @@ def plan(root, include_submissions):
         metadata(data, package)
     immutable(existing, packages)
     require(len(packages) <= 10000, "registry exceeds package limit")
+    pretty(index)
+    for data in packages.values():
+        pretty(data)
     return index, packages, queued
 
 

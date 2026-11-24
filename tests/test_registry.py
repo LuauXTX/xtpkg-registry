@@ -127,6 +127,14 @@ class RegistryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'immutable'):
             r.immutable(before, after)
 
+    def test_immutable_records_distinguish_booleans_and_numbers(self):
+        before = {'example/tool': package()}
+        before['example/tool']['versions']['1.0.0']['extension'] = 1
+        after = copy.deepcopy(before)
+        after['example/tool']['versions']['1.0.0']['extension'] = True
+        with self.assertRaisesRegex(ValueError, 'immutable'):
+            r.immutable(before, after)
+
     def test_rollback_on_failed_file_replacement(self):
         self.submit(package())
         before = (self.root / 'index.json').read_bytes()
