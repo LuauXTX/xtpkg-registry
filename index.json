@@ -8,6 +8,10 @@
       "description": "A lightweight extensible testing framework for LuauXTX.",
       "path": "packages/xtest.json"
     },
+    "xtgui": {
+      "description": "Retained, reactive desktop UI for LuauXTX's native graphics backend",
+      "path": "packages/xtgui.json"
+    },
     "xtpkg": {
       "description": "A lightweight LuauXTX package manager featuring deterministic dependency resolution, SemVer versioning, Git-based registries, verified caching, and reproducible installations.",
       "path": "packages/xtpkg.json"
