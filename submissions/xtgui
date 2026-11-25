@@ -1,0 +1,18 @@
+{
+  "description": "Retained, reactive desktop UI for LuauXTX's native graphics backend",
+  "license": "MIT",
+  "name": "xtgui",
+  "repository": "https://github.com/LuauXTX/xtgui",
+  "versions": {
+    "0.1.0": {
+      "dependencies": {},
+      "entry": "src/init.luau",
+      "integrity": "fdc23b4a8116a1a3c50be1b5c14c688986815d529e98d5fea5cff166fa95aba6",
+      "source": {
+        "revision": "4665d30d1e6e664215270c5d00fb475790e59311",
+        "type": "git",
+        "url": "https://github.com/LuauXTX/xtgui"
+      }
+    }
+  }
+}
